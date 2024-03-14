@@ -2,26 +2,28 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import logging
-import os
-from datetime import datetime
-import pytz
 from requests.adapters import HTTPAdapter, Retry
 import zipfile
 import io
 import csv
+from setup_logging import setup_logging
 
-def create_id_list(bgg_list_path, csv_path) -> None:
+'''
+To limit the number of API calls download the boardgame_ranks.csv, an id list of boardgame things (boardgames, expansions, etc.).
+This file is updated daily. To download the file, user must be logged in.
+
+The id list is then extracted and saved.
+'''
+
+def create_id_list(bgg_list_path: str, csv_path: str) -> None:
     # Create id list of bgg things
-    ids = []
     with open(csv_path,'r',newline='') as f:
         csvreader = csv.reader(f)
-        for row in csvreader:
-            first_column_value = row[0]
-            ids.append(first_column_value)
-    
+        ids: list[str] = [row[0] for row in csvreader]
+
     logging.info(f"Extracted {len(ids)-1} ids")
 
-    id_path = f"{bgg_list_path}/bgg_id.csv"
+    id_path: str = f"{bgg_list_path}/bgg_id.csv"
     with open(id_path,'w') as f:
         for id in ids:
             f.write(f"{id}\n")
@@ -30,31 +32,29 @@ def create_id_list(bgg_list_path, csv_path) -> None:
 
     return None
 
-def download_bgg_list(bgg_list_path, session) -> str:
+def download_bgg_list(bgg_list_path: str, session) -> str:
     # Locate download link in page, the link changes daily
     r = session.get("https://boardgamegeek.com/data_dumps/bg_ranks")
     soup = BeautifulSoup(r.text, 'html.parser')
     zip_url = soup.find('a',string="Click to Download")['href']
 
-    r = requests.get(zip_url)
-    file_name = "boardgames_ranks.csv"
+    try:
+        r = requests.get(zip_url)
+        r.raise_for_status()
 
-    if r.status_code == 200:
+        file_name = "boardgames_ranks.csv"     
         with io.BytesIO(r.content) as zip_buffer:
             with zipfile.ZipFile(zip_buffer, 'r') as zip_ref:
                 zip_ref.extractall(f"{bgg_list_path}")
-            logging.info(f"{file_name} downloaded successfully.")
-    else:
-        logging.error(f"{file_name} failed to download: {r.status_code=}")
+        logging.info(f"{file_name} downloaded successfully.")
+
+    except Exception as e:
+        logging.error(f"{file_name} failed to download: {e}", exc_info=True)
 
     csv_path = f"{bgg_list_path}/{file_name}"
     return csv_path
 
-def login_bgg(bgg_list_path) -> str:
-    '''
-    To limit the number of API calls download the boardgame_ranks.csv, an id list of boardgame things (boardgames, expansions, etc.).
-    This file is updated daily. To access file, must be logged in.
-    '''
+def login_bgg(bgg_list_path: str) -> str:
     with requests.Session() as s:
         logging.info(f'Creating login session to BoardGameGeek')
         retries = Retry(total=2, backoff_factor=2, status_forcelist=[400], allowed_methods=["POST"])
@@ -71,41 +71,16 @@ def login_bgg(bgg_list_path) -> str:
 
         try:
             p = s.post('https://boardgamegeek.com/login/api/v1', data=body, headers=headers)
+            p.raise_for_status()
             logging.info(f"Login successful with status code {p.status_code}")
         except Exception as e:
             logging.error(f"An error occurred: {e}", exc_info=True)
-        
+
         csv_path = download_bgg_list(bgg_list_path, session=s)
     return csv_path
 
-def setup() -> str:
-    # Setup data output and logging folders
-    sydney_tz = pytz.timezone('Australia/Sydney')    
-    sydney_datetime = datetime.now(sydney_tz)
-
-    year: int = sydney_datetime.year
-    month: int = sydney_datetime.month
-    day: int = sydney_datetime.day
-
-    folder_path: str = f'{year}/{month:02d}/{day:02d}'
-    log_path: str = f'{folder_path}/log'
-    bgg_list_path: str = f'{folder_path}/bgg_list'
-
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(bgg_list_path, exist_ok=True)
-
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(levelname)s - %(message)s',
-                        filename=f'{log_path}/create_bgg_id_list.log',
-                        filemode='a',
-                        datefmt="%Y-%m-%d %H:%M:%S")
-    
-    logging.Formatter.converter = lambda *args: sydney_datetime.timetuple()
-    logging.info(f'Running {__file__}')
-    return bgg_list_path 
-
 def main():
-    bgg_list_path = setup()
+    _, _, bgg_list_path, _ = setup_logging()
     csv_path = login_bgg(bgg_list_path)
     create_id_list(bgg_list_path, csv_path)
 
