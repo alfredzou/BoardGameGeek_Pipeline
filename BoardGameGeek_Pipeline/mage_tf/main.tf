@@ -1,3 +1,6 @@
+# Serverless VPC Access Admin
+# Compute Admin
+
 # main.tf
 
 terraform {
@@ -90,11 +93,11 @@ resource "google_cloud_run_service" "run_service" {
         }
         env {
           name  = "FILESTORE_IP_ADDRESS"
-          value = google_filestore_instance.instance.networks[0].ip_addresses[0]
+          value = module.nfs.internal_ip
         }
         env {
           name  = "FILE_SHARE_NAME"
-          value = "share1"
+          value = "share/mage"
         }
         env {
           name  = "GCP_PROJECT_ID"
@@ -112,6 +115,11 @@ resource "google_cloud_run_service" "run_service" {
           name  = "ULIMIT_NO_FILE"
           value = 16384
         }
+        env {
+          name  = "MAGE_DATABASE_CONNECTION_URL"
+          value = "postgresql://${var.database_user}:${var.database_password}@/${var.app_name}-db?host=/cloudsql/${google_sql_database_instance.instance.connection_name}"
+        }
+
         # volume_mounts {
         #   mount_path = "/secrets/bigquery"
         #   name       = "secret-bigquery-key"
@@ -132,7 +140,6 @@ resource "google_cloud_run_service" "run_service" {
     metadata {
       annotations = {
         "autoscaling.knative.dev/minScale"         = "1"
-        # "run.googleapis.com/cloudsql-instances"    = google_sql_database_instance.instance.connection_name
         "run.googleapis.com/cpu-throttling"        = false
         "run.googleapis.com/execution-environment" = "gen2"
         "run.googleapis.com/vpc-access-connector"  = google_vpc_access_connector.connector.id
@@ -149,7 +156,6 @@ resource "google_cloud_run_service" "run_service" {
   metadata {
     annotations = {
       "run.googleapis.com/launch-stage" = "BETA"
-      # "run.googleapis.com/ingress"      = "internal-and-cloud-load-balancing"
     }
   }
 
@@ -166,8 +172,3 @@ resource "google_cloud_run_service_iam_member" "run_all_users" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
-
-# Display the service IP
-# output "service_ip" {
-#   value = module.lb-http.external_ip
-# }
