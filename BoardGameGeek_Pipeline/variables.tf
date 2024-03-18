@@ -1,21 +1,21 @@
 variable "credentials" {
     description = "My Credential Location"
-    default = "~/.gcp/bgg.json"
+    default = "~/.gcp/gcs_bq.json"
 }
 
 variable "Project" {
     description = "My Project Name"
-    default = "sharp-harbor-411301" 
+    default = "crested-talon-417601" 
 }
 
 variable "region" {
     description = "My Project Region"
-    default = "australia-southeast1" 
+    default = "australia-southeast2" 
 }
 
 variable "gcs_bucket_name" {
     description = "My Storage Bucket Name"
-    default = "boardgamegeek-bucket"
+    default = "boardgamegeek-bucket1"
 }
 
 variable "bq_dataset_name" {
