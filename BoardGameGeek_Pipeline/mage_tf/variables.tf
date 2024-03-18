@@ -42,15 +42,3 @@ variable "docker_image" {
   description = "The docker image to deploy to Cloud Run."
   default     = "mageai/mageai:latest"
 }
-
-variable "database_user" {
-  type        = string
-  description = "The username of the Postgres database."
-  default     = "mage"
-}
-
-variable "database_password" {
-  type        = string
-  description = "The password of the Postgres database."
-  default     = "mage"
-}

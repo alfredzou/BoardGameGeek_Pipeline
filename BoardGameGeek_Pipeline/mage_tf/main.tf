@@ -35,6 +35,12 @@ resource "google_project_service" "iam" {
   disable_on_destroy = false
 }
 
+# Enable Cloud Filestore API
+resource "google_project_service" "filestore" {
+  service            = "file.googleapis.com"
+  disable_on_destroy = false
+}
+
 # Enable Artifact Registry API
 resource "google_project_service" "artifactregistry" {
   service            = "artifactregistry.googleapis.com"
@@ -93,11 +99,11 @@ resource "google_cloud_run_service" "run_service" {
         }
         env {
           name  = "FILESTORE_IP_ADDRESS"
-          value = module.nfs.internal_ip
+          value = google_filestore_instance.instance.networks[0].ip_addresses[0]
         }
         env {
           name  = "FILE_SHARE_NAME"
-          value = "share/mage"
+          value = "share1"
         }
         env {
           name  = "GCP_PROJECT_ID"
@@ -115,11 +121,6 @@ resource "google_cloud_run_service" "run_service" {
           name  = "ULIMIT_NO_FILE"
           value = 16384
         }
-        env {
-          name  = "MAGE_DATABASE_CONNECTION_URL"
-          value = "postgresql://${var.database_user}:${var.database_password}@/${var.app_name}-db?host=/cloudsql/${google_sql_database_instance.instance.connection_name}"
-        }
-
         # volume_mounts {
         #   mount_path = "/secrets/bigquery"
         #   name       = "secret-bigquery-key"
