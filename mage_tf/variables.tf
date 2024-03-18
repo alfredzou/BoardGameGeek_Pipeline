@@ -22,19 +22,19 @@ variable "container_memory" {
 variable "project_id" {
   type        = string
   description = "The name of the project"
-  default     = "sharp-harbor-411301"
+  default     = "crested-talon-417601"
 }
 
 variable "region" {
   type        = string
   description = "The default compute region"
-  default     = "australia-southeast1"
+  default     = "australia-southeast2"
 }
 
 variable "zone" {
   type        = string
   description = "The default compute zone"
-  default     = "australia-southeast1-b"
+  default     = "australia-southeast2-b"
 }
 
 variable "docker_image" {
@@ -43,14 +43,14 @@ variable "docker_image" {
   default     = "mageai/mageai:latest"
 }
 
-variable "domain" {
-  description = "Domain name to run the load balancer on. Used if `ssl` is `true`."
+variable "database_user" {
   type        = string
-  default     = ""
+  description = "The username of the Postgres database."
+  default     = "mage"
 }
 
-variable "ssl" {
-  description = "Run load balancer on HTTPS and provision managed certificate with provided `domain`."
-  type        = bool
-  default     = false
+variable "database_password" {
+  type        = string
+  description = "The password of the Postgres database."
+  default     = "mage"
 }
