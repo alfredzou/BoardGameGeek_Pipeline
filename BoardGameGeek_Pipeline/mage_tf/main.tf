@@ -121,21 +121,25 @@ resource "google_cloud_run_service" "run_service" {
           name  = "ULIMIT_NO_FILE"
           value = 16384
         }
-        # volume_mounts {
-        #   mount_path = "/secrets/bigquery"
-        #   name       = "secret-bigquery-key"
-        # }
+        env {
+          name = "path_to_keyfile"
+          value = "/secrets/gcs_bq.json"
+        }
+        volume_mounts {
+          mount_path = "/secrets"
+          name       = "secret-gcs-bq-key"
+        }
       }
-      # volumes {
-      #   name = "secret-bigquery-key"
-      #   secret {
-      #     secret_name  = "bigquery_key"
-      #     items {
-      #       key  = "latest"
-      #       path = "bigquery_key"
-      #     }
-      #   }
-      # }
+      volumes {
+        name = "secret-gcs-bq-key"
+        secret {
+          secret_name  = "gcs_bq"
+          items {
+            key  = "latest"
+            path = "gcs_bq.json"
+          }
+        }
+      }
     }
 
     metadata {

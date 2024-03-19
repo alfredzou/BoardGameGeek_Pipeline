@@ -22,5 +22,7 @@ Compute Engine API
 Identity and Access Management (IAM) API	
 Serverless VPC Access API
 
-The region for mage_tf should be different if cpu error
- Error: Error waiting to create Connector: Error waiting for Creating Connector: Error code 9, message: Operation failed: Insufficient CPU quota in region.
+5.6 secret manager
+5.7 create secret call it gcs_bq. upload file which is your gcs_bq.json file.
+5.8 IAM give your default Compute Engine default service account Secret Manager Secret Accessor
+
