@@ -2,35 +2,18 @@ blocks:
 - all_upstream_blocks_executed: true
   color: blue
   configuration: {}
-  downstream_blocks:
-  - veiled_flower
+  downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: create_bgg_id_list
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks: []
   uuid: create_bgg_id_list
-- all_upstream_blocks_executed: true
-  color: null
-  configuration: {}
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: veiled flower
-  retry_config: null
-  status: not_executed
-  timeout: null
-  type: data_exporter
-  upstream_blocks:
-  - create_bgg_id_list
-  uuid: veiled_flower
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
