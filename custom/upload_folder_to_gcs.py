@@ -6,7 +6,7 @@ if 'custom' not in globals():
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
-def upload_to_gcs(local_temp_path, path):
+def upload_to_gcs(local_temp_path: str, path: str) -> None:
     local_path = f"{local_temp_path}/{path}"
     local_file_list = [(f"{local_path}/{file_name}", file_name) for file_name in os.listdir(f"{local_path}")]
     logging.info(f"{len(local_file_list)} found in {local_path}")
@@ -18,6 +18,7 @@ def upload_to_gcs(local_temp_path, path):
             logging.info(f"uploaded {i+1} files to {path}")
         i += 1
     logging.info(f"files uploaded {local_path}")
+    return None
 
 @custom
 def main(*args, **kwargs):

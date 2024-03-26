@@ -5,6 +5,12 @@ import json
 from google.cloud import storage
 from google.oauth2 import service_account
 
+def get_date() -> datetime:
+    sydney_tz = pytz.timezone('Australia/Sydney')    
+    sydney_datetime = datetime.now(sydney_tz)
+    sydney_date = sydney_datetime.date()
+    return sydney_date
+
 def gcp_authenticate():
     with open(os.getenv('path_to_keyfile'), 'r') as f:
         info = json.load(f)
