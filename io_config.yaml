@@ -37,18 +37,18 @@ default:
   DUCKDB_DATABASE: database
   DUCKDB_SCHEMA: main
   # Google
-  # GOOGLE_SERVICE_ACC_KEY:
-  #   type: service_account
-  #   project_id: crested-talon-417601
-  #   private_key_id: 541f697481af31a47afd5135ae201130fa8067df
-  #   private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDc5k/lh2ES2hLn\nPnoDdjbjOAt/XaYKtp0Kp2oTxmu90w0GRAv8G5Nd3KxVgPKcD7ETa/DFmxyncTk3\na8TswFTCaOOs8EpZGIjQsy/1TFeOSr/fvgK36vFIFhBq9MNMsE3H5CGgk2ETgk9U\nQ3JCNaYEn5ntlwr2QNd067J4g7n1BqkyfDSyx5lc7YNwHaPMKf1C2hAs4rDjyppq\nl85+98h4ySphmVAv98SwMOJzEr/FPol7qCjK9Sn5i1EG+aJ9DkKgl4b03R3cqFgt\nfDYi2xJ0ffpgN4T6WAqm/m4wld2y5dCk3UsRpNh/eE1x4kwLxRxIRSD7L1BBhrxW\nm9xpFJV1AgMBAAECggEAK59Xu84GP4DNJtlRowlfQXO54YcO2SLC1G3HJuySLkRV\nWB1r+HdBnNGNPr1eK691mo5AV+WPvQlA8U7Y7p/0nQe1nls9c2bC7ePU3q4axEDC\nr16IjuVYjJG+4EBBqQ1P7t+APIOeMgoTvGItWCHcDSGvdhnT0llvsukwr1fkCxzN\ntB9e5oTgLjjruIHbB3wM9VbGDkgwjM+gggSGA4UEha3bgxHF4FkVGaSBR+OOWl4j\n7tRYu88rSGkIncvkkRZrcTzQZQvobAfkx6loyWGYDwFd0qXE9G015+0jWSbIXLnJ\nM/X63kX0FmLicvVkBTytomdFh4lcOX5aT0Qx+ELrwQKBgQDvk451QZVV508SgD4X\nggHk7x2fwK5rcRrbYIgcn1OW/3Rffhtf5uIGX8rbzSHDmwunePgXuEH42nkr/spa\n4cuhfQ4UogUpD0fj/ZSumHzqGvD+AZm64ecNlJUIF2uP6P6XI8QOW3NYdaboooPO\nqIEHHrCHVSUP5wQ4IXmSPVNm3QKBgQDsCv0JqTgk76SnRAcyid5D5V2ppZAdoTT2\nRg4cm9AvNIbklcS7+7lW7S/jWhYMi24js8wfyWUn31TnTNpLlTAat4escQ/yHQHO\nwFabs3ba1nTgcG1LnV0LDdduwadJfHqrmoNS3GSlQjZ+2CejgyNtcQKKt9Mv4RXY\njzRiX4/jeQKBgQCG2O8eYMPFjmSbbUOFx895JH3wJWwHXapYQIVcVvGd1DuUZE7U\nNAiUveZYwaV3jBWLNjOuZi/7+jyp3sfXT7BmPRVn16o/6jH0yg6eF4Z33qI21n/J\nCM4cfr1DyKrqXaKvP5pi2maaK96+onq+H2pAr618/xfVU5q0XWMoRQxkoQKBgQC+\nn0kmSjB7M8UnB7tARzLmZg8z9+7g3tVkpcKzu+luld7yLzlIDsvotXfdBV2VF+0E\njCkm6n/0qVlpyhjovTyx9tFso4obHu3cyFupNk+f/103+9NoI1eGm9EFMwMkR5DR\nkODJRA9LnqNf4LRySm+L7J3+5OF6Yy4/S7ckUsRjEQKBgQCrRj587ECdZwi45qCh\nEgfF9w43FRTdrE8tyGUolnvxxvJ2uJYT+qP7nK/lYVFXREpLXv0xngzlsCGVES24\nE+l3r0kLQdhrg1QaLvZ43yYCMdhF6SQL38Q3ZjgPKO91Z4Ow/c/E/JZJewXlKYGx\nxqFcoRCZ+vG4cWGeXqvIQNnXhQ==\n-----END PRIVATE KEY-----\n"
-  #   client_email: "gcs-bq@crested-talon-417601.iam.gserviceaccount.com"
-  #   auth_uri: "https://accounts.google.com/o/oauth2/auth"
-  #   token_uri: "https://oauth2.googleapis.com/token"
-  #   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs"
-  #   client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/gcs-bq%40crested-talon-417601.iam.gserviceaccount.com"
-  # GOOGLE_SERVICE_ACC_KEY_FILEPATH: "/path/to/your/service/account/key.json"
-  # GOOGLE_LOCATION: US # Optional
+  GOOGLE_SERVICE_ACC_KEY:
+    type: service_account
+    project_id: project-id
+    private_key_id: key-id
+    private_key: "-----BEGIN PRIVATE KEY-----\nyour_private_key\n-----END_PRIVATE_KEY"
+    client_email: your_service_account_email
+    auth_uri: "https://accounts.google.com/o/oauth2/auth"
+    token_uri: "https://accounts.google.com/o/oauth2/token"
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs"
+    client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/your_service_account_email"
+  GOOGLE_SERVICE_ACC_KEY_FILEPATH: "/path/to/your/service/account/key.json"
+  GOOGLE_LOCATION: US # Optional
   # MongoDB
   # Specify either the connection string or the (host, password, user, port) to connect to MongoDB.
   MONGODB_CONNECTION_STRING: "mongodb://{username}:{password}@{host}:{port}/"

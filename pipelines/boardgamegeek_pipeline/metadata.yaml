@@ -2,18 +2,103 @@ blocks:
 - all_upstream_blocks_executed: true
   color: blue
   configuration: {}
-  downstream_blocks: []
+  downstream_blocks:
+  - api_call
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: create_bgg_id_list
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks: []
   uuid: create_bgg_id_list
+- all_upstream_blocks_executed: false
+  color: blue
+  configuration: {}
+  downstream_blocks:
+  - upload_folder_to_gcs
+  - parse_xml
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: api_call
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - create_bgg_id_list
+  uuid: api_call
+- all_upstream_blocks_executed: false
+  color: yellow
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: upload_folder_to_gcs
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - api_call
+  uuid: upload_folder_to_gcs
+- all_upstream_blocks_executed: false
+  color: blue
+  configuration:
+    dynamic: false
+  downstream_blocks:
+  - upload_to_gcs_bq
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: parse_xml
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - api_call
+  uuid: parse_xml
+- all_upstream_blocks_executed: false
+  color: yellow
+  configuration:
+    reduce_output: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: upload_to_gcs_bq
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - parse_xml
+  uuid: upload_to_gcs_bq
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: humble familiar
+  retry_config: null
+  status: updated
+  timeout: null
+  type: scratchpad
+  upstream_blocks: []
+  uuid: humble_familiar
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

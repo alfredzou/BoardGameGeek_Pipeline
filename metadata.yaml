@@ -55,3 +55,7 @@ project_uuid: 25baddeb33e24a149b7f1b6daee3fb2c
 help_improve_mage: true
 features:
   display_local_timezone: true
+  command_center: true
+
+queue_config:
+  concurrency: 1

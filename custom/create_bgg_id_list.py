@@ -4,29 +4,14 @@ import json
 from bs4 import BeautifulSoup
 import zipfile
 import csv
-import os
 import io
-from default_repo.utils.folder_paths import folder_paths
-from google.cloud import storage
-from google.oauth2 import service_account
-from dotenv import dotenv_values
+from default_repo.utils.bgg_utils import folder_paths, gcp_authenticate
+import os
 
 if 'custom' not in globals():
     from mage_ai.data_preparation.decorators import custom
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
-
-def gcp_authenticate(bucket_name):
-    with open(os.getenv('path_to_keyfile'), 'r') as f:
-        info = json.load(f)
-
-    storage_credentials = service_account.Credentials.from_service_account_info(info)
-    storage_client = storage.Client(credentials=storage_credentials)
-
-    bucket = storage_client.bucket(bucket_name)
-
-    logging.info(f"Google Cloud Platform authentication successful")
-    return bucket
 
 def create_id_list(bgg_list_path: str, csv_path: str) -> None:
     # Create id list of bgg things
@@ -43,7 +28,7 @@ def create_id_list(bgg_list_path: str, csv_path: str) -> None:
     
     logging.info(f"Created bgg_id.csv at {id_path}")
 
-    return None
+    return id_path
 
 def download_bgg_list(bgg_list_path: str, session) -> str:
     # Locate download link in page, the link changes daily
@@ -96,22 +81,22 @@ def login_bgg(bgg_list_path: str) -> str:
             logging.error(f"An error occurred: {e}", exc_info=True)
             raise
 
-        csv_path = download_bgg_list(bgg_list_path, session=s)
+    csv_path = download_bgg_list(bgg_list_path, session=s)
     return csv_path
 
 @custom
 def main(*args, **kwargs):
     global logging
     logging = kwargs.get('logger')
-    
-    config = dotenv_values('/home/src/default_repo/.env')
-    bucket_name = config['bucket_name']
 
     global bucket
-    bucket = gcp_authenticate(bucket_name)
+    bucket, _ = gcp_authenticate()
+    logging.info(f"Google Cloud Platform authentication successful")
 
+    _, bgg_list_path, raw_data_path, stage_data_path, local_temp_path = folder_paths()
+    os.makedirs(f"{local_temp_path}/{raw_data_path}", exist_ok=True)
+    os.makedirs(f"{local_temp_path}/{stage_data_path}", exist_ok=True)
 
-    _, bgg_list_path, _ = folder_paths()
     csv_path = login_bgg(bgg_list_path)
-    create_id_list(bgg_list_path, csv_path)
-    return None
+    id_path = create_id_list(bgg_list_path, csv_path)
+    return id_path
