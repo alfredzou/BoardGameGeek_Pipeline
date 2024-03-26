@@ -118,8 +118,16 @@ resource "google_cloud_run_service" "run_service" {
           value = var.app_name
         }
         env {
+          name  = "GCS_BUCKET_NAME"
+          value = var.gcs_bucket_name
+        }        
+        env {
           name  = "ULIMIT_NO_FILE"
           value = 16384
+        }
+        env {
+          name  = "DBT_PROFILES_DIR"
+          value = var.dbt_profiles_dir
         }
         env {
           name = "path_to_keyfile"

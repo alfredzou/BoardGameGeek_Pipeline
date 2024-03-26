@@ -28,8 +28,3 @@ resource "google_storage_bucket" "bgg-bucket" {
     }
   }
 }
-
-resource "google_bigquery_dataset" "bgg_dataset" {
-  dataset_id  = var.bq_dataset_name
-  location    = var.region  
-}

@@ -21,6 +21,13 @@ Cloud Resource Manager API
 Compute Engine API
 Identity and Access Management (IAM) API	
 Serverless VPC Access API
+5.5.1 tf varriables.tf change 
+
+"credentials
+"project_id
+"region"
+"zone" 
+"gcs_bucket_name
 
 5.6 secret manager
 5.7 create secret call it gcs_bq. upload file which is your gcs_bq.json file.
