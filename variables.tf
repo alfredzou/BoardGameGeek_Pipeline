@@ -17,9 +17,3 @@ variable "gcs_bucket_name" {
     description = "My Storage Bucket Name"
     default = "boardgamegeek-bucket1"
 }
-
-variable "bq_dataset_name" {
-    description = "My BigQuery Dataset Name"
-    default = "boardgamegeek"
-}
-
