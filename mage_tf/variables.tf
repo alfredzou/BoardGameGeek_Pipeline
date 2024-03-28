@@ -51,6 +51,6 @@ variable "docker_image" {
 variable "dbt_profiles_dir" {
   type        = string
   description = "The path that dbt looks for profile.yml"
-  default     = "/home/src/default_repo/dbt"
+  default     = "/home/src/default_repo/dbt/bgg"
 }
 
