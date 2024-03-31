@@ -15,59 +15,65 @@ def list_to_string(my_list: list[str]) -> str:
 	if len(my_list) == 0:
 		return pd.NA
 	else:
-		string = ','.join(my_list)
+		string = '|,|'.join(my_list)
 		return string
 
-def parse_xml(doc, sydney_date):
+def parse_xml(doc, sydney_date, xml_path: str):
     bgg_list: list[list[str]] = []
     suggested_players_list: list[list[str]] = []
     for item in doc.xpath('/items/item'):
-        bgg_list.append([
-            sydney_date,
-            item.attrib['id'],
-            item.attrib['type'],
-            item.xpath('./name[@type="primary"]/@value')[0],
-            f"https://boardgamegeek.com/boardgame/{item.attrib['id']}",
-            item.xpath('./yearpublished/@value')[0],
-            item.xpath('./minplayers/@value')[0],
-            item.xpath('./maxplayers/@value')[0],
-            item.xpath('./playingtime/@value')[0],
-            item.xpath('./minplaytime/@value')[0],
-            item.xpath('./maxplaytime/@value')[0],
-            item.xpath('.//usersrated/@value')[0],
-            item.xpath('.//average/@value')[0],
-            item.xpath('.//stddev/@value')[0],
-            item.xpath('.//bayesaverage/@value')[0],
-            item.xpath('.//numcomments/@value')[0],
-            item.xpath('.//numweights/@value')[0],
-            item.xpath('.//averageweight/@value')[0],
-            item.xpath('.//owned/@value')[0],
-            item.xpath('.//wishing/@value')[0],
-            item.xpath('.//trading/@value')[0],
-            item.xpath('.//wanting/@value')[0],
-            item.xpath('.//rank[@id="1"]/@value')[0],
-            list_to_string(item.xpath('./link[@type="boardgamecategory"]/@id')),
-            list_to_string(item.xpath('./link[@type="boardgamecategory"]/@value')),
-            list_to_string(item.xpath('./link[@type="boardgamemechanic"]/@id')),
-            list_to_string(item.xpath('./link[@type="boardgamemechanic"]/@value')),
-            list_to_string(item.xpath('./link[@type="boardgamefamily"]/@id')),
-            list_to_string(item.xpath('./link[@type="boardgamefamily"]/@value')),
-            list_to_string(item.xpath('./link[@type="boardgamedesigner"]/@id')),
-            list_to_string(item.xpath('./link[@type="boardgamedesigner"]/@value')),
-            list_to_string(item.xpath('./link[@type="boardgamepublisher"]/@id')),
-            list_to_string(item.xpath('./link[@type="boardgamepublisher"]/@value')),
-            list_to_string(item.xpath('./link[@type="boardgameartist"]/@id')),
-            list_to_string(item.xpath('./link[@type="boardgameartist"]/@value')),
-        ])
-
-        for result in item.xpath('./poll[@name="suggested_numplayers"]/results'):
-            suggested_players_list.append([
+        try:
+            bgg_list.append([
                 sydney_date,
                 item.attrib['id'],
-                result.attrib['numplayers'],
-                list_to_string(result.xpath('./result/@value')),
-                list_to_string(result.xpath('./result/@numvotes')),
+                item.attrib['type'],
+                item.xpath('./name[@type="primary"]/@value')[0],
+                f"https://boardgamegeek.com/boardgame/{item.attrib['id']}",
+                item.xpath('./yearpublished/@value')[0],
+                item.xpath('./minplayers/@value')[0],
+                item.xpath('./maxplayers/@value')[0],
+                item.xpath('./playingtime/@value')[0],
+                item.xpath('./minplaytime/@value')[0],
+                item.xpath('./maxplaytime/@value')[0],
+                item.xpath('.//usersrated/@value')[0],
+                item.xpath('.//average/@value')[0],
+                item.xpath('.//stddev/@value')[0],
+                item.xpath('.//bayesaverage/@value')[0],
+                item.xpath('.//numcomments/@value')[0],
+                item.xpath('.//numweights/@value')[0],
+                item.xpath('.//averageweight/@value')[0],
+                item.xpath('.//owned/@value')[0],
+                item.xpath('.//wishing/@value')[0],
+                item.xpath('.//trading/@value')[0],
+                item.xpath('.//wanting/@value')[0],
+                item.xpath('.//rank[@id="1"]/@value')[0],
+                list_to_string(item.xpath('./link[@type="boardgamecategory"]/@id')),
+                list_to_string(item.xpath('./link[@type="boardgamecategory"]/@value')),
+                list_to_string(item.xpath('./link[@type="boardgamemechanic"]/@id')),
+                list_to_string(item.xpath('./link[@type="boardgamemechanic"]/@value')),
+                list_to_string(item.xpath('./link[@type="boardgamefamily"]/@id')),
+                list_to_string(item.xpath('./link[@type="boardgamefamily"]/@value')),
+                list_to_string(item.xpath('./link[@type="boardgamedesigner"]/@id')),
+                list_to_string(item.xpath('./link[@type="boardgamedesigner"]/@value')),
+                list_to_string(item.xpath('./link[@type="boardgamepublisher"]/@id')),
+                list_to_string(item.xpath('./link[@type="boardgamepublisher"]/@value')),
+                list_to_string(item.xpath('./link[@type="boardgameartist"]/@id')),
+                list_to_string(item.xpath('./link[@type="boardgameartist"]/@value')),
             ])
+
+            for result in item.xpath('./poll[@name="suggested_numplayers"]/results'):
+                suggested_players_list.append([
+                    sydney_date,
+                    item.attrib['id'],
+                    result.attrib['numplayers'],
+                    list_to_string(result.xpath('./result/@value')),
+                    list_to_string(result.xpath('./result/@numvotes')),
+                ])
+        except IndexError as error:
+            logging.info(f"issue with processing {item.attrib['id']} for {xml_path}. Skipping", error)
+        except Exception as error:
+            logging.error(f"issue with processing {item.attrib['id']} for {xml_path}", error)
+            raise
     return bgg_list, suggested_players_list
 
 def create_df(data_list: str, mode: str) -> pd.DataFrame:
@@ -181,7 +187,7 @@ def process_xml(batch_number: int, xml_batch_paths:list[str], local_temp_path:st
         xml_data_bytes = xml.encode('utf-8')
         doc = etree.XML(xml_data_bytes)
 
-        bgg_list, suggested_players_list = parse_xml(doc, sydney_date)
+        bgg_list, suggested_players_list = parse_xml(doc, sydney_date, xml_path)
         combined_bgg_list.extend(bgg_list)
         combined_suggested_players_list.extend(suggested_players_list)
         logging.debug(f'parsing completed for {xml_path}')

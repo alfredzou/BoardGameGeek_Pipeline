@@ -1,0 +1,14 @@
+sources:
+- description: Dataframes Mage upstream blocks
+  loader: mage
+  name: mage_bgg
+  schema: bgg_dev
+  tables:
+  - description: Dataframe for block `upload_to_gcs_bq` of the `boardgamegeek_pipeline`
+      mage pipeline.
+    identifier: mage_boardgamegeek_pipeline_upload_to_gcs_bq
+    meta:
+      block_uuid: upload_to_gcs_bq
+      pipeline_uuid: boardgamegeek_pipeline
+    name: boardgamegeek_pipeline_upload_to_gcs_bq
+version: 2

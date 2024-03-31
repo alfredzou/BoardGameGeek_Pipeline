@@ -7,6 +7,7 @@ import csv
 import io
 from default_repo.utils.bgg_utils import folder_paths, gcp_authenticate
 import os
+import shutil
 
 if 'custom' not in globals():
     from mage_ai.data_preparation.decorators import custom
@@ -84,6 +85,12 @@ def login_bgg(bgg_list_path: str) -> str:
     csv_path = download_bgg_list(bgg_list_path, session=s)
     return csv_path
 
+def recreate_folders(path: str) -> None:
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
+    return None
+
 @custom
 def main(*args, **kwargs):
     global logging
@@ -94,8 +101,9 @@ def main(*args, **kwargs):
     logging.info(f"Google Cloud Platform authentication successful")
 
     _, bgg_list_path, raw_data_path, stage_data_path, local_temp_path = folder_paths()
-    os.makedirs(f"{local_temp_path}/{raw_data_path}", exist_ok=True)
-    os.makedirs(f"{local_temp_path}/{stage_data_path}", exist_ok=True)
+
+    recreate_folders(f"{local_temp_path}/{raw_data_path}")
+    recreate_folders(f"{local_temp_path}/{stage_data_path}")
 
     csv_path = login_bgg(bgg_list_path)
     id_path = create_id_list(bgg_list_path, csv_path)

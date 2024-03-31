@@ -38,11 +38,11 @@ def api_call(raw_data_path:str, api_call_dict:dict[int:str]) -> None:
 
     logging.info(f'Creating session to connect with bgg api')
     with requests.Session() as s:
-        retries = Retry(total=5, backoff_factor=2, status_forcelist=[429, 503], allowed_methods=["GET"])
+        retries = Retry(total=5, backoff_factor=2, status_forcelist=[429, 502, 503], allowed_methods=["GET"])
         s.mount('https://', HTTPAdapter(max_retries=retries))
 
         for i, api_ids_list in api_call_dict.items():
-            params: dict = {"id":api_ids_list,"stats":"1"}
+            params: dict = {"id":api_ids_list,"stats":"1","type":"boardgame,boardgameexpansion"}
             raw_file_path = f'{local_temp_path}/{raw_data_path}/{i}.xml'
             try:
                 r = s.get(url, params=params)
@@ -53,6 +53,7 @@ def api_call(raw_data_path:str, api_call_dict:dict[int:str]) -> None:
                         f.write(row) 
             except Exception as e:
                 logging.error(f"An error occurred with api call {i}: {e}", exc_info=True)   
+                r.raise_for_status()
 
             if (i+1) % 10 == 0:
                 logging.info(f"{i+1} api calls processed")

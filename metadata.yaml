@@ -56,6 +56,11 @@ help_improve_mage: true
 features:
   display_local_timezone: true
   command_center: true
-
+  code_block_v2: false
+  dbt_v2: true
+  add_new_block_v2: false
+  compute_management: false
 queue_config:
   concurrency: 1
+logging_config:
+  level: DEBUG
