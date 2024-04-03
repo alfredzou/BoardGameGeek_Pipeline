@@ -3,6 +3,7 @@ import math
 from time import sleep
 from default_repo.utils.bgg_utils import folder_paths, gcp_authenticate
 import requests
+from requests.exceptions import ChunkedEncodingError
 
 if 'custom' not in globals():
     from mage_ai.data_preparation.decorators import custom
@@ -40,25 +41,37 @@ def api_call(raw_data_path:str, api_call_dict:dict[int:str]) -> None:
     with requests.Session() as s:
         retries = Retry(total=5, backoff_factor=2, status_forcelist=[429, 502, 503], allowed_methods=["GET"])
         s.mount('https://', HTTPAdapter(max_retries=retries))
+        max_chunking_retries = 3
+        api_wait = 10
 
         for i, api_ids_list in api_call_dict.items():
             params: dict = {"id":api_ids_list,"stats":"1","type":"boardgame,boardgameexpansion"}
             raw_file_path = f'{local_temp_path}/{raw_data_path}/{i}.xml'
-            try:
-                r = s.get(url, params=params)
-                r.raise_for_status()
-                
-                with open(raw_file_path, 'wb') as f:
-                    for row in r:
-                        f.write(row) 
-            except Exception as e:
-                logging.error(f"An error occurred with api call {i}: {e}", exc_info=True)   
-                r.raise_for_status()
+            for retry_count in range(1, max_chunking_retries+1):
+                try:
+                    r = s.get(url, params=params)
+                    r.raise_for_status()
+                    
+                    with open(raw_file_path, 'wb') as f:
+                        for row in r:
+                            f.write(row) 
+                    break
+                except ChunkedEncodingError as e:
+                    logging.warning(f"An error occurred with api call {i}", exc_info=True)
+                    if retry_count <= max_chunking_retries:
+                        logging.warning(f"Retrying API call {i} after {api_wait} seconds...")
+                        sleep(api_wait)
+                    else:
+                        logging.error(f"Maximum retry attempts reached for API call {i}", exc_info=True)
+                        raise
+                except Exception as e:
+                    logging.error(f"An error occurred with api call {i}", exc_info=True)
+                    raise
 
             if (i+1) % 10 == 0:
                 logging.info(f"{i+1} api calls processed")
 
-            sleep(10)
+            sleep(api_wait)
 
     logging.info(f"api calls completed")   
 

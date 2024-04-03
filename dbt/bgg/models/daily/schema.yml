@@ -1,0 +1,514 @@
+version: 2
+
+models:
+  - name: dim_bgg
+    description: >
+          Information on BoardGameGeek boardgames and boardgame expansions. 
+          Composite primary key of 'date' and 'bgg_id'.
+
+          One to many relationship to 'artist', 'category', 'designer', 'family', 'artist', 
+          'publisher', 'suggested_players' tables. Join on 'date' and 'bgg_id' columns.
+
+          For date information join on 'dates'. Join on 'date' columns.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+
+    columns:
+      - name: date
+        data_type: date
+        description: "API call date Sydney time"
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: "BoardGameGeek natural id"
+        tests:
+          - unique
+          - not_null
+
+      - name: type
+        data_type: string
+        description: "Either boardgame or expansion"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['boardgame', 'expansion']
+
+      - name: name
+        data_type: string
+        description: ""
+        tests:
+          - not_null
+
+      - name: url
+        data_type: string
+        description: ""
+        tests:
+          - not_null
+
+      - name: year_published
+        data_type: int64
+        description: "Null if information not provided"
+
+      - name: min_players
+        data_type: int64
+        description: "Null if information not provided"
+        tests:
+          - not_negative
+
+      - name: max_players
+        data_type: int64
+        description: "Null if information not provided"
+        tests:
+          - not_negative
+
+      - name: play_time
+        data_type: int64
+        description: "Null if information not provided"
+        tests:
+          - not_negative
+
+      - name: min_play_time
+        data_type: int64
+        description: "Null if information not provided"
+        tests:
+          - not_negative
+
+      - name: max_play_time
+        data_type: int64
+        description: "Null if information not provided"
+        tests:
+          - not_negative
+          
+      - name: num_ratings
+        data_type: int64
+        description: "Number of user ratings"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: avg_rating
+        data_type: float64
+        description: "Average score from 1-10 of user ratings. Null if no ratings"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 10
+
+      - name: standard_deviation_rating
+        data_type: float64
+        description: "Standard deviation of user ratings. Null if no ratings"
+        tests:
+          - not_negative
+
+      - name: geek_rating
+        data_type: float64
+        description: >
+                    BoardGameGeek's adjusted rating used for determing bgg_rank. Geek_rating involves adding dummy ratings to
+                    user ratings, moving the rating towards the norm of all games in the database. Rating between 1-10.
+                    
+                    This makes games with a small amount of votes but very high ratings to be ranked lower than games with 
+                    more votes and less average user rating. 
+                    
+                    Null if geek_rating is not calculated. Geek_rating (and bgg_rank) is not calculated for expansions, compilations,
+                    number of user ratings less than 30, and other hidden criteria.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 10
+
+      - name: num_comments
+        data_type: int64
+        description: "Number of comments"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: num_complexity_ratings
+        data_type: int64
+        description: "Number of user ratings on complexity"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: avg_complexity_rating
+        data_type: float64
+        description: >
+                    Average complexity score from 1-5 of user ratings on complexity: 'How difficult a game is to understand?'
+                    Null if no complexity ratings
+
+                    Light (1)
+                    Medium Light (2)
+                    Medium (3)
+                    Medium Heavy (4)
+                    Heavy (5)
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 5
+
+      - name: avg_complexity
+        data_type: str
+        description: >
+                    These complexity bands have been created based off the original complexity ratings
+
+                    Light (1-2)
+                    Medium light (2-3)
+                    Medium heavy (3-4)
+                    Heavy (4-5)                    
+        tests:
+          - accepted_values:
+              values: ['Light', 'Medium light','Medium heavy' ,'Heavy']
+
+      - name: num_own
+        data_type: int64
+        description: "Number of users marked this item as owned"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: num_wishlist
+        data_type: int64
+        description: "Number of users marked this item as wishlisted"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: num_for_trade
+        data_type: int64
+        description: "Number of users marked this item as up for trade"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: num_want_in_trade
+        data_type: int64
+        description: "Number of users marked this item as want to trade"
+        tests:
+          - not_null
+          - not_negative
+
+      - name: bgg_rank
+        data_type: int64
+        description: "BoardGameGeek rank based off geek_rating. Null if geek_rating is not calculated."
+        tests:
+          - unique
+          - not_negative
+
+  - name: fact_artist
+    description: >
+          BoardGameGeek artist information. 
+          Composite primary key of 'date', 'bgg_id' and 'artist_id'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - artist_id
+      - unique_id_pair:
+          column_name_id: artist_id
+          column_name: artist
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: artist_id
+        data_type: int64
+        description: "BoardGameGeek natural artist id"      
+        tests:
+          - not_null
+          
+      - name: artist
+        data_type: string
+        description: ""
+
+  - name: fact_category
+    description: >
+          BoardGameGeek category information. 
+          Composite primary key of 'date', 'bgg_id' and 'category_id'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - category_id
+      - unique_id_pair:
+          column_name_id: category_id
+          column_name: category
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: category_id
+        data_type: int64
+        description: "BoardGameGeek natural category id"      
+        tests:
+          - not_null
+
+      - name: category
+        data_type: string
+        description: ""
+
+  - name: fact_designer
+    description: >
+          BoardGameGeek designer information. 
+          Composite primary key of 'date', 'bgg_id' and 'designer_id'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - designer_id
+      - unique_id_pair:
+          column_name_id: designer_id
+          column_name: designer
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: designer_id
+        data_type: int64
+        description: "BoardGameGeek natural designer id"      
+        tests:
+          - not_null
+
+      - name: designer
+        data_type: string
+        description: ""
+
+  - name: fact_family
+    description: >
+          BoardGameGeek family information. 
+          Composite primary key of 'date', 'bgg_id' and 'family_id'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - family_id
+      - unique_id_pair:
+          column_name_id: family_id
+          column_name: family
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: family_id
+        data_type: int64
+        description: "BoardGameGeek natural family id"      
+        tests:
+          - not_null
+
+      - name: family
+        data_type: string
+        description: ""
+
+  - name: fact_mechanic
+    description: >
+          BoardGameGeek mechanic information. 
+          Composite primary key of 'date', 'bgg_id' and 'mechanic_id'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - mechanic_id
+      - unique_id_pair:
+          column_name_id: mechanic_id
+          column_name: mechanic
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: mechanic_id
+        data_type: int64
+        description: "BoardGameGeek natural mechanic id"      
+        tests:
+          - not_null
+
+      - name: mechanic
+        data_type: string
+        description: ""
+
+  - name: fact_publisher
+    description: >
+          BoardGameGeek publisher information. 
+          Composite primary key of 'date', 'bgg_id' and 'publisher_id'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - publisher_id
+      - unique_id_pair:
+          column_name_id: publisher_id
+          column_name: publisher
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: publisher_id
+        data_type: int64
+        description: "BoardGameGeek natural publisher id"      
+        tests:
+          - not_null
+          
+      - name: publisher
+        data_type: string
+        description: ""
+
+  - name: fact_suggested_players_full
+    description: >
+          BoardGameGeek polled information on 'suggested_player_count'.
+          Composite primary key of 'date', 'bgg_id' and 'suggested_player_count'.
+    columns:
+      - name: date
+        data_type: date
+        description: ""
+        tests:
+          - not_null
+
+      - name: bgg_id
+        data_type: int64
+        description: ""
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_bgg')
+              field: bgg_id
+
+      - name: suggested_player_count
+        data_type: string
+        description: "Player count voting category. '#+' represents more than # category"
+
+      - name: player_count_rating
+        data_type: string
+        description: "Rating category of 'Best', 'Recommended' and 'Not Recommended'"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Best', 'Recommended', 'Not Recommended']
+
+      - name: player_count_votes
+        data_type: int64
+        description: "Number of votes for the 'suggested_player_count' and 'player_count_rating'"
+        tests:
+          - not_negative
+          - not_null
+
+      - name: total_votes_by_player_count
+        data_type: int64
+        description: "Number of votes made for this 'suggested_player_count'"
+        tests:
+          - not_negative
+
+      - name: total_votes
+        data_type: int64
+        description: "Number of votes made for this 'bgg_id'"
+        tests:
+          - not_negative
+
+      - name: perc_by_player_count
+        data_type: int64
+        description: "Percentage of votes by 'suggested_player_count' and 'player_count_rating'"
+        tests:
+          - not_negative
+
+      - name: perc_total_votes
+        data_type: int64
+        description: "Percentage of total votes by 'suggested_player_count' and 'player_count_rating'"
+        tests:
+          - not_negative
+
+      - name: rank_by_player_count
+        data_type: int64
+        description: "Ranking of 'player_count_rating' by 'suggested_player_count'"
+        tests:
+          - not_negative
+
+      - name: player_count_recommendation
+        data_type: string
+        description: >
+              Recommendations calculated off of poll results. 
+
+              Recommendation is NULL if 'suggested_player_count' represents more than #. (#+)
+              Recommendation is NULL if votes per player count is less than 5.
+        tests:
+          - accepted_values:
+              values: ['Best', 'Recommended', 'Not Recommended']

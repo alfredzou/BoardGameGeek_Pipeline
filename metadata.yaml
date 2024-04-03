@@ -63,4 +63,4 @@ features:
 queue_config:
   concurrency: 1
 logging_config:
-  level: DEBUG
+  level: INFO

@@ -61,7 +61,7 @@ blocks:
   language: python
   name: parse_xml
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:

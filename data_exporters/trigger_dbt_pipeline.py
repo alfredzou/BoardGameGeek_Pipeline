@@ -6,9 +6,7 @@ if 'data_exporter' not in globals():
 def trigger(*args, **kwargs):
     trigger_pipeline(
     'boardgamegeek_dbt',
-    variables={},
-    check_status=True,
+    check_status=False,
     error_on_failure=False,
-    poll_interval=60,
-    verbose=True,
+    verbose=False,
     )

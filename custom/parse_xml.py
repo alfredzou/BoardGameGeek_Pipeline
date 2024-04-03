@@ -70,9 +70,9 @@ def parse_xml(doc, sydney_date, xml_path: str):
                     list_to_string(result.xpath('./result/@numvotes')),
                 ])
         except IndexError as error:
-            logging.info(f"issue with processing {item.attrib['id']} for {xml_path}. Skipping", error)
+            logging.warning(f"issue with processing {item.attrib['id']} for {xml_path}. Skipping",exc_info=True)
         except Exception as error:
-            logging.error(f"issue with processing {item.attrib['id']} for {xml_path}", error)
+            logging.error(f"issue with processing {item.attrib['id']} for {xml_path}",exc_info=True)
             raise
     return bgg_list, suggested_players_list
 
