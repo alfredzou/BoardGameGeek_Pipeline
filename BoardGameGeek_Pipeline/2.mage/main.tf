@@ -1,8 +1,5 @@
 # Serverless VPC Access Admin
 # Compute Admin
-
-# main.tf
-
 terraform {
   required_version = ">= 0.14"
 
@@ -77,6 +74,20 @@ resource "google_project_service" "sqladmin" {
   disable_on_destroy = false
 }
 
+# Create Secret in Secret Manager to allow Mage to access GCS and BigQuery
+resource "google_secret_manager_secret" "gcs_bq_secret" {
+  secret_id = "gcs_bq_secret"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gcs_bq_secret_version" {
+  secret = google_secret_manager_secret.gcs_bq_secret.id
+
+  secret_data = file(var.gcs_bq_credentials)
+}
 
 # Create the Cloud Run service
 resource "google_cloud_run_service" "run_service" {
@@ -120,7 +131,11 @@ resource "google_cloud_run_service" "run_service" {
         env {
           name  = "GCS_BUCKET_NAME"
           value = var.gcs_bucket_name
-        }        
+        } 
+        env {
+          name  = "DBT_GCS_BUCKET_NAME"
+          value = var.dbt_gcs_bucket_name
+        }         
         env {
           name  = "ULIMIT_NO_FILE"
           value = 16384
@@ -141,7 +156,7 @@ resource "google_cloud_run_service" "run_service" {
       volumes {
         name = "secret-gcs-bq-key"
         secret {
-          secret_name  = "gcs_bq"
+          secret_name  = "gcs_bq_secret"
           items {
             key  = "latest"
             path = "gcs_bq.json"

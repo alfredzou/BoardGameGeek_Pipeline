@@ -15,7 +15,7 @@ git clone https://github.com/alfredzou/BoardGameGeek_Pipeline.git
 5.2 update the variables.tf (project name, region and bucket name). Noting that bucket names must be globally unique
 5.25 terraform init
 5.3 terraform apply
-5.4 create another service account, give it cloud filestore admin and Serverless VPC Access Admin. rename as mage
+5.4 create another service account, give it cloud filestore admin and Serverless VPC Access Admin, Secret Manager Admin, compute network admin, storage admin. rename as mage
 5.5 enable these apis
 Cloud Resource Manager API
 Compute Engine API
@@ -23,13 +23,12 @@ Identity and Access Management (IAM) API
 Serverless VPC Access API
 5.5.1 tf varriables.tf change 
 
-"credentials
 "project_id
-"region"
-"zone" 
 "gcs_bucket_name
+"dbt_gcs_bucket_name
+Run in order
+1.gcs
+2.mage
+3.dbt_docs
 
-5.6 secret manager
-5.7 create secret call it gcs_bq. upload file which is your gcs_bq.json file.
-5.8 IAM give your default Compute Engine default service account Secret Manager Secret Accessor
-
+Compute Engine default service account grant Secret Manager Secret Accessor
