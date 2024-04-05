@@ -18,10 +18,10 @@ def gcp_authenticate():
     credentials = service_account.Credentials.from_service_account_info(info)
     storage_client = storage.Client(credentials=credentials)
     
-    bucket_name = os.getenv('GCS_BUCKET_NAME')
-    bucket = storage_client.bucket(bucket_name)
+    mage_bucket = storage_client.bucket(os.getenv('GCS_BUCKET_NAME'))
+    dbt_bucket = storage_client.bucket(os.getenv('DBT_GCS_BUCKET_NAME'))
 
-    return bucket, credentials
+    return mage_bucket, credentials, dbt_bucket
 
 def folder_paths() -> str:
     # Setup data output and logging folders

@@ -2,264 +2,87 @@ blocks:
 - all_upstream_blocks_executed: true
   color: null
   configuration:
+    dbt:
+      command: build
     dbt_profile_target: prod
     dbt_profiles_file_path: dbt/bgg/profiles.yml
     dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/dim_bgg.sql
     file_source:
-      path: dbt/bgg/models/daily/dim_bgg.sql
-      project_path: dbt/bgg
-  downstream_blocks:
-  - dbt/bgg/models/daily/fact_artist
-  - dbt/bgg/models/daily/fact_mechanic
-  - dbt/bgg/models/daily/fact_publisher
-  - dbt/bgg/models/daily/fact_category
-  - dbt/bgg/models/daily/fact_designer
-  - dbt/bgg/models/daily/fact_family
-  - dbt/bgg/models/daily/fact_suggested_players_full
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: dim_bgg
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks: []
-  uuid: dbt/bgg/models/daily/dim_bgg
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_artist.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_artist.sql
-      project_path: dbt/bgg
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: fact_artist
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_artist
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_category.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_category.sql
-      project_path: dbt/bgg
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: fact_category
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_category
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_designer.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_designer.sql
-      project_path: dbt/bgg
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: fact_designer
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_designer
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_family.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_family.sql
-      project_path: dbt/bgg
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: fact_family
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_family
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_mechanic.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_mechanic.sql
-      project_path: dbt/bgg
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: fact_mechanic
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_mechanic
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_publisher.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_publisher.sql
-      project_path: dbt/bgg
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: fact_publisher
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_publisher
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_suggested_players.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_suggested_players.sql
-      project_path: dbt/bgg
+      path: dbts/daily_load.yaml
+    limit: '10'
   downstream_blocks:
   - incremental_load
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: fact_suggested_players
-  retry_config: null
-  status: updated
-  timeout: null
-  type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/fact_suggested_players_full
-  uuid: dbt/bgg/models/daily/fact_suggested_players
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/fact_suggested_players_full.sql
-    file_source:
-      path: dbt/bgg/models/daily/fact_suggested_players_full.sql
-      project_path: dbt/bgg
-    limit: 1000
-  downstream_blocks:
-  - dbt/bgg/models/daily/fact_suggested_players
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: dbt/bgg/models/daily/fact_suggested_players_full
+  language: yaml
+  name: daily_load
   retry_config: null
   status: failed
   timeout: null
   type: dbt
-  upstream_blocks:
-  - dbt/bgg/models/daily/dim_bgg
-  uuid: dbt/bgg/models/daily/fact_suggested_players_full
+  upstream_blocks: []
+  uuid: daily_load
 - all_upstream_blocks_executed: false
   color: null
   configuration:
     dbt:
-      command: ''
+      command: build
     dbt_profile_target: prod
     dbt_profiles_file_path: dbt/bgg/profiles.yml
     dbt_project_name: dbt/bgg
     file_source:
       path: dbts/incremental_load.yaml
-  downstream_blocks: []
+    limit: '10'
+  downstream_blocks:
+  - generate_dbt_docs
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: yaml
   name: incremental_load
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: dbt
   upstream_blocks:
-  - dbt/bgg/models/daily/fact_suggested_players
+  - daily_load
   uuid: incremental_load
-- all_upstream_blocks_executed: true
-  color: null
+- all_upstream_blocks_executed: false
+  color: yellow
+  configuration: {}
+  downstream_blocks:
+  - upload_dbt_docs_to_gcs
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: generate_dbt_docs
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - incremental_load
+  uuid: generate_dbt_docs
+- all_upstream_blocks_executed: false
+  color: teal
   configuration:
-    dbt_profile_target: prod
-    dbt_profiles_file_path: dbt/bgg/profiles.yml
-    dbt_project_name: dbt/bgg
-    file_path: dbt/bgg/models/daily/dates.sql
     file_source:
-      path: dbt/bgg/models/daily/dates.sql
-      project_path: dbt/bgg
+      path: custom/upload_dbt_docs_to_gcs.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: dates
+  language: python
+  name: upload_dbt_docs_to_gcs
   retry_config: null
-  status: not_executed
+  status: executed
   timeout: null
-  type: dbt
-  upstream_blocks: []
-  uuid: dbt/bgg/models/daily/dates
+  type: custom
+  upstream_blocks:
+  - generate_dbt_docs
+  uuid: upload_dbt_docs_to_gcs
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

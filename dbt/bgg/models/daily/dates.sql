@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized='table',
+    )
+}}
+
 SELECT
     date,
     EXTRACT(YEAR FROM date) AS year,

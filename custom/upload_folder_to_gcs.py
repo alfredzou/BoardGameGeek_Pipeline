@@ -26,7 +26,7 @@ def main(*args, **kwargs):
     logging = kwargs.get('logger')
 
     global bucket
-    bucket, _ = gcp_authenticate()
+    bucket, _, _ = gcp_authenticate()
     logging.info(f"Google Cloud Platform authentication successful")
 
     _, _, raw_data_path, _, local_temp_path = folder_paths()

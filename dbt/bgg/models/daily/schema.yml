@@ -436,7 +436,14 @@ models:
   - name: fact_suggested_players_full
     description: >
           BoardGameGeek polled information on 'suggested_player_count'.
-          Composite primary key of 'date', 'bgg_id' and 'suggested_player_count'.
+          Composite primary key of 'date', 'bgg_id', 'suggested_player_count', 'player_count_rating'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - suggested_player_count
+            - player_count_rating
     columns:
       - name: date
         data_type: date
@@ -512,3 +519,17 @@ models:
         tests:
           - accepted_values:
               values: ['Best', 'Recommended', 'Not Recommended']
+
+  - name: fact_suggested_players
+    description: >
+          Subset of fact_suggested_players_full table.
+          
+          See fact_suggested_players_full for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - suggested_player_count
+            - player_count_recommendation
+    

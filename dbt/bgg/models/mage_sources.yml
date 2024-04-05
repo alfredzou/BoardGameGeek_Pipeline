@@ -2,13 +2,13 @@ sources:
 - description: Dataframes Mage upstream blocks
   loader: mage
   name: mage_bgg
-  schema: bgg_dev
+  schema: bgg_prod
   tables:
-  - description: Dataframe for block `upload_to_gcs_bq` of the `boardgamegeek_pipeline`
+  - description: Dataframe for block `generate_dbt_docs` of the `boardgamegeek_dbt`
       mage pipeline.
-    identifier: mage_boardgamegeek_pipeline_upload_to_gcs_bq
+    identifier: mage_boardgamegeek_dbt_generate_dbt_docs
     meta:
-      block_uuid: upload_to_gcs_bq
-      pipeline_uuid: boardgamegeek_pipeline
-    name: boardgamegeek_pipeline_upload_to_gcs_bq
+      block_uuid: generate_dbt_docs
+      pipeline_uuid: boardgamegeek_dbt
+    name: boardgamegeek_dbt_generate_dbt_docs
 version: 2

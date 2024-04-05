@@ -1,0 +1,83 @@
+version: 2
+
+models:
+  - name: bgg
+    description: >
+          See dim_bgg table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+
+  - name: artist
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - artist_id
+
+  - name: designer
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - designer_id
+
+  - name: family
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - family_id
+
+  - name: mechanic
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - mechanic_id
+
+  - name: publisher
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - publisher_id
+
+  - name: suggested_players_full
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - suggested_player_count
+            - player_count_rating
+
+  - name: suggested_players
+    description: >
+          See fact table for documentation
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+            - suggested_player_count
+            - player_count_recommendation

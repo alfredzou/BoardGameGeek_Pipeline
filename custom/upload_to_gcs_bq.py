@@ -72,7 +72,7 @@ def main(*args, **kwargs):
     logging = kwargs.get('logger')
 
     global bucket
-    bucket, bq_credentials = gcp_authenticate()
+    bucket, bq_credentials, _ = gcp_authenticate()
     logging.info(f"Google Cloud Platform authentication successful")
 
     global bq_client
