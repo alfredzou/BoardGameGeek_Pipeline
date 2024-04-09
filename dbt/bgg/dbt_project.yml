@@ -34,6 +34,6 @@ models:
   bgg:
     # Config indicated by + and applies to all files under models/example/
     daily:
-      +materialized: view
+      +materialized: table
     incremental:
       +materialized: table
