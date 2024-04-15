@@ -63,11 +63,52 @@ with Diagram("Pipeline 2", show=False, node_attr=node_attr, graph_attr=graph_att
             lb = LoadBalancing("Webpage")
         with Cluster("3. Data modelling", graph_attr=cluster_graph_attr):
             dbt = Custom("dbt", "./resources/dbt.png")
-            bigquery_prod = Bigquery("BigQuery: Prod")
+            bigquery_prod_daily = Bigquery("BQ: daily")
+            bigquery_prod_hist = Bigquery("BQ: history")
 
-    bigquery_stage >> [dbt, dbt_docs]
-    dbt >> bigquery_prod
+    bigquery_stage >> dbt >> bigquery_prod_daily >> bigquery_prod_hist
     dbt_docs >> docs_bucket >> lb
+
+with Diagram(
+    "BoardGameGeek Pipeline",
+    show=False,
+    node_attr=node_attr,
+    graph_attr=graph_attr,
+    filename="Pipeline",
+):
+    bgg = Custom("API", "./resources/bgg.png")
+
+    with Cluster(
+        "Orchestrated by Mage running on Google Cloud Run",
+        graph_attr=cluster_graph_attr,
+    ):
+        with Cluster("1. API calls", graph_attr=cluster_graph_attr):
+            api_call = Python("Python")
+            filestore = Filestore("Filestore")
+            raw_bucket = GCS("GCS: Raw")
+        with Cluster("2. Parse XML", graph_attr=cluster_graph_attr):
+            parse_xml = Python("Python")
+            stage_bucket = GCS("GCS: Stage")
+            bigquery_stage = Bigquery("BigQuery: Stage")
+        with Cluster("3. Data modelling", graph_attr=cluster_graph_attr):
+            dbt = Custom("dbt", "./resources/dbt.png")
+            bigquery_prod_daily = Bigquery("BQ: daily")
+            bigquery_prod_hist = Bigquery("BQ: history")
+        with Cluster("4. Update dbt data dictionary", graph_attr=cluster_graph_attr):
+            dbt_docs = Custom("dbt", "./resources/dbt.png")
+            docs_bucket = GCS("GCS: Docs")
+            lb = LoadBalancing("Webpage")
+
+    bgg >> api_call >> [filestore, raw_bucket]
+    filestore >> parse_xml >> [bigquery_stage, stage_bucket]
+    bigquery_stage >> [dbt]
+    dbt >> bigquery_prod_daily >> bigquery_prod_hist
+    dbt_docs >> docs_bucket >>  lb
+
+    # Positioning hack
+    invisible_edge = Edge(style="invis")
+    raw_bucket >> invisible_edge >> stage_bucket
+    stage_bucket >> invisible_edge >> dbt_docs
 
 with Diagram(
     "Infrastructure",
