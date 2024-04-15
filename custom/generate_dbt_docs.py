@@ -9,10 +9,11 @@ if 'test' not in globals():
 def main(*args, **kwargs) -> None:
     global logging
     logging = kwargs.get('logger')
+    cwd = '/home/src/default_repo/dbt/bgg'
 
-    result = subprocess.run(['dbt', 'deps'], capture_output=True, text=True)
+    result = subprocess.run(['dbt', 'deps'],cwd=cwd ,capture_output=True, text=True)
     logging.info(result.stdout)
 
-    result = subprocess.run(['dbt', 'docs', 'generate'], capture_output=True, text=True)
+    result = subprocess.run(['dbt', 'docs', 'generate'],cwd=cwd , capture_output=True, text=True)
     logging.info(result.stdout)
     return None

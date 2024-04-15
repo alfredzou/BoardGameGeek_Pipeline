@@ -1,5 +1,5 @@
-{% set dt = modules.datetime.datetime.now() %}
-{% set dt_local = modules.pytz.timezone('Australia/Sydney').localize(dt).strftime("%Y-%m-%d") %}
+{% set dt = modules.datetime.datetime.now(modules.pytz.timezone('UTC')) %}
+{% set dt_local = dt.astimezone(modules.pytz.timezone('Australia/Sydney')).strftime("%Y-%m-%d") %}
 
 WITH my_cte AS (
 SELECT DISTINCT

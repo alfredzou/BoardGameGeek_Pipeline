@@ -1,5 +1,6 @@
 from default_repo.utils.bgg_utils import gcp_authenticate
 from google.cloud import bigquery
+import os
 
 if 'custom' not in globals():
     from mage_ai.data_preparation.decorators import custom
@@ -7,18 +8,9 @@ if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
 def upload_dbt_docs_to_gcs(dbt_docs_path: str) -> None:
-    dbt_doc_files = ['catalog.json',
-                    'graph.gpickle',
-                    'graph_summary.json',
-                    'index.html',
-                    'manifest.json',
-                    'partial_parse.msgpack',
-                    'run_results.json',
-                    'semantic_manifest.json'
-                    ]
-    local_path = f"{dbt_docs_path}"
-    local_file_list = [(f"{local_path}/{file_name}", file_name) for file_name in dbt_doc_files]
-    logging.info(f"{len(local_file_list)} found in {local_path}")
+    local_file_list = [(f"{dbt_docs_path}/{file_name}", file_name) for file_name in os.listdir(dbt_docs_path)
+                        if os.path.isfile(os.path.join(dbt_docs_path, file_name))]
+    logging.info(f"{len(local_file_list)} found in {dbt_docs_path}")
     
     i=0
     for local_file, file_name in local_file_list:
@@ -26,7 +18,7 @@ def upload_dbt_docs_to_gcs(dbt_docs_path: str) -> None:
         if (i+1) % 10 == 0:
             logging.info(f"uploaded {i+1} files")
         i += 1
-    logging.info(f"files uploaded from {local_path}")
+    logging.info(f"files uploaded from {dbt_docs_path}")
     return None
 
 @custom
