@@ -14,3 +14,4 @@ mage_data/
 secrets/
 .ssh_tunnel/
 temp/
+venv/
