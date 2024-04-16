@@ -1,6 +1,3 @@
-# Storage Admin
-# BigQuery Admin
-
 terraform {
   required_providers {
     google = {

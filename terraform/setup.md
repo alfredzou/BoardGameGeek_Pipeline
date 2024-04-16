@@ -8,19 +8,21 @@
 #### Google Cloud Platform Steps - Setting up permissions
 1. Create new project
 2. Navigate to the 'Service Accounts' page (under 'IAM & Admin')
-3. Create a service account called **gcs_bq** and assign it the **Storage Admin** and **BigQuery Admin** roles
+3. Create a service account called **gcs_bq** and assign it these roles:
+    - **BigQuery Admin**
+    - **Storage Admin**
 4. Open this service account and navigate to the 'KEYS' tab
 5. Click 'ADD KEY', 'Create new key', 'JSON' and 'CREATE'
 6. Rename the key to **gcs_bq.json** and move it to '~/.gcp/gcs_bq.json'
 7. Create a service account called **mage** and assign it these roles: 
-    - **Storage Admin**
     - **Cloud Filestore Editor**
-    - **Serverless VPC Access Admin**
-    - **Secret Manager Admin**
+    - **Cloud Run Admin**
     - **Compute Network Admin**
+    - **Secret Manager Admin**
+    - **Serverless VPC Access Admin**
     - **Service Account User**
     - **Service Usage Admin**
-    - **Cloud Run Admin**
+    - **Storage Admin**
 8. Open this service account and navigate to the 'KEYS' tab
 9. Click 'ADD KEY', 'Create new key', 'JSON' and 'CREATE'
 10. Rename the key to **mage.json** and move it to '~/.gcp/mage.json'
@@ -29,6 +31,9 @@
     - Identity and Access Management (IAM) API	
     - Serverless VPC Access API
     - Service Usage API
+
+#### The access for **gcs_bq** and **mage** should match below
+<img src="../documentation/screenshots/access.png" alt="access" width="800"/>
 
 #### Terraform Steps - Setting up Infrastructure
 1. Clone the repository
@@ -47,6 +52,8 @@ terraform apply
 6. Click 'Edit principal' for Compute Engine default service account and assign it the **Secret Manager Secret Accessor**
 7. Rerun 'terraform apply'
 8. For **3.dbt_docs subdirectory**, run 'terraform init' and 'terraform apply'
+
+<img src="../documentation/infrastructure.png" alt="infrastructure" width="700"/>
 
 #### Mage Steps - Running the pipeline
 1. Navigate to Cloud Run page

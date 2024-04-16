@@ -1,5 +1,3 @@
-# Serverless VPC Access Admin
-# Compute Admin
 terraform {
   required_version = ">= 0.14"
 
