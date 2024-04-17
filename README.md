@@ -60,8 +60,8 @@ The process is broken up into 4 steps:
 
 ### Design Decisions
 - [Minimise API calls](#minimise-API-calls)
-- [API call reliability: retrying, error handling, logging, failing loudly and testing](#API-call-reliability:-retrying,-error-handling,-logging,-failing-loudly-and-testing)
-- [Idempotent](#Idempotentce
+- [API call reliability: retrying, error handling, logging, failing loudly and testing](#APIcall)
+- [Idempotence](#Idempotence)
 - [Chunking](#Chunking)
 - [Separation of extraction and transformation](#Separation-of-extraction-and-transformation)
 - [Daily staging tables](#Daily-staging-tables)
@@ -78,7 +78,7 @@ API calls are a significant speed bottleneck for the pipeline. Efforts have been
 
 This pipeline currently takes about 2 hours to run, with ~170 API calls taking around 1 hour and 40 minutes.
 
-### API call reliability: retrying, error handling, logging, failing loudly and testing
+### API call reliability: retrying, error handling, logging, failing loudly and testing <a id="APIcall"></a>
 
 Given that the API call process takes so long, it's important to make sure the process is fault tolerant.
 - The first method, is retrying 5 more times if the API call request returns 429 (Too many requests), 502 (Bad gateway) or 503 (Service Unavailable). Successive retry attempts are made after a 1, 2, 4, 8 and 16 second delay.
