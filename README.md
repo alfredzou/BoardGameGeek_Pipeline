@@ -46,8 +46,7 @@ In this postmortem, I reflect on the decisions made regarding the pipeline and i
 
 ## Contents
 - [Pipeline Design Explanation](#Pipeline-Design-Explanation)
-- [Infrastructure Design Explanation](#Infrastructure-Design-Explanation)
-- [Tools & Technologies Design Explanation](#Tools-&-Technologies-Design-Explanation)
+- [Infrastructure, Tools & Technologies Design Explanation](#Infrastructure,-Tools-&-Technologies-Design-Explanation)
 
 ## Pipeline Design Explanation
 
@@ -59,15 +58,16 @@ The process is broken up into 4 steps:
 
 <img src="./documentation/pipeline.png" alt="pipeline" width="800"/>
 
-## Specific Design Decisions
+### Design Decisions
 - [Minimise API calls](#minimise-API-calls)
-- [API call reliability](#reliability) - retrying, error handling, logging, failing loudly and testing
-- [Idempotent](#Idempotent)
+- [API call reliability: retrying, error handling, logging, failing loudly and testing](#API-call-reliability:-retrying,-error-handling,-logging,-failing-loudly-and-testing)
+- [Idempotent](#Idempotentce
 - [Chunking](#Chunking)
 - [Separation of extraction and transformation](#Separation-of-extraction-and-transformation)
-- [No Partitioning or Clustering](#No-Partitioning-or-Clustering)
-- stores raw data
-- orchestrated
+- [Daily staging tables](#Daily-staging-tables)
+- [Star schema](#Star-schema)
+- [Automating testing and documentation with dbt](#Automating-testing-and-documentation-with-dbt)
+- [No partitioning and clustering](#No-partitioning-and-clustering)
 
 ### Minimise API calls
 
@@ -78,7 +78,7 @@ API calls are a significant speed bottleneck for the pipeline. Efforts have been
 
 This pipeline currently takes about 2 hours to run, with ~170 API calls taking around 1 hour and 40 minutes.
 
-### API call reliability: retrying, error handling, logging, failing loudly and testing <a id="reliability"></a>
+### API call reliability: retrying, error handling, logging, failing loudly and testing
 
 Given that the API call process takes so long, it's important to make sure the process is fault tolerant.
 - The first method, is retrying 5 more times if the API call request returns 429 (Too many requests), 502 (Bad gateway) or 503 (Service Unavailable). Successive retry attempts are made after a 1, 2, 4, 8 and 16 second delay.
@@ -118,7 +118,7 @@ for retry_count in range(1, max_chunking_retries+1):
 ```
 - Unfortunately due to project scope, I wasn't able to write tests to improve the reliability of API call code. Especially since API calls are so variable, I would of used mocking to test handling of edge cases. Furthermore, CI/CD could of been set up using github actions to automatically test new code when it is pushed to the repository.
 
-### Idempotent
+### Idempotence
 
 When an error occurs with a pipeline run, we want to be able to recover from partial executions. Idempotence is the property of an operation where running it multiple times will have the same effect of running it once.
 - One example of this is using a delete create pattern. The below code involves deleting folders created and recreating them.
@@ -144,66 +144,134 @@ def recreate_folders(path: str) -> None:
 
 ### Chunking
 
-Since cloud computing is often continuously run for scheduling of pipeline jobs, it's important to make sure the code is memory efficient. This is to reduce costs on cloud computing infrastructure. To achieve this chunking is used consistently to remove memory usage.
+Since cloud computing is often continuously run for scheduling of pipeline jobs, it's important to make sure the code is memory efficient to reduce costs. To achieve this, chunking is used consistently to reduce memory usage.
 
 Pandas is notoriously known for not being memory efficient, so it would be interesting to see if packages like Polars, Dask, Modin and DuckDB will be better suited.
 
 ### Separation of extraction and transformation
 
-A key idea of this pipeline is the separation of extraction and transformation processes into two separate pipelines.
-- The first pipeline would extract the API data, as this pipeline would be based on the run date. This pipeline would then save the raw XML data to a GCS bucket. This follows a ELT framework. Since storage is cheap, with compute being expensive, its 
+A key idea of this pipeline is the separation of extraction and transformation processes into two separate pipelines. In retrospect, I would move the XML parsing into the transformation pipeline.
+- The extraction pipeline would extract the API data. This pipeline reflects the data as of run date. This pipeline would then save the raw XML data to a GCS bucket.
+- The transformation pipeline would take this raw XML data, parse it, stage it in BigQuery and model it using dbt. 
+- Currently the extraction pipeline runs daily and triggers the transformation pipeline. The transformation pipeline is kept separate incase a backfill is required due to changing business requirements. This setup follows a ELT framework. Since storage is cheap, it's a good idea to keep the raw files around.
 
-
-<img src="./documentation/screenshots/mage_dag_1.png" alt="mage_dag_1" width="400"/>
-<img src="./documentation/screenshots/mage_dag_2.png" alt="mage_dag_2" width="290"/>
+Extraction Pipeline             |  Transformation Pipeline
+:------------------------------:|:-------------------------:
+<img src="./documentation/screenshots/mage_dag_1.png" alt="mage_dag_1" width="400"/>  |  <img src="./documentation/screenshots/mage_dag_2.png" alt="mage_dag_2" width="290"/>
 
 ### Daily staging tables
 
+I decided to load the staging table separately in the format of `bgg-YYYY-MM-DD` and `sp-YYYY-MM-DD`. This is to provide resilience to upstream changes in the form of a change in source data or change in business rules to parse the XML data. Unfortunately, it doesn't seem that the yml configuration file for dbt is able to handle this dynamic naming style. The consequence of this is that the dbt lineage does not identify the sources.
 
-
-The raw and staged data is stored based on execution date (Sydney time) in a 'Year/Month/Day' folder structure in the GCS under `Year/Month/Day/raw_data` and `Year/Month/Day/stage_data` folders respectively. Similarly the BigQuery daily staging table are stored in a similar format if `bgg-YYYY-MM-DD` and `sp-YYYY-MM-DD`.
-
-This is to make the data more resilient to upstream changes
-
-
-### Data is easy to use
-
-
-### Partitioning and Clustering
-
-Due to the small daily data size of ~150,000 rows, partitioning and clustering of the history table was not used. It's likely that partitioning and clustering a small dataset will actually reduce the query speed with excess metadata.
-
-### Automated documentation
-
-Another key idea is automating the 
-
-
-## Infrastructure Design Explanation
-
-The aim was to design a pipeline that is easy to setup and repeatable.
-
-I wanted to simulate a professional setup opposed to 
-
-<img src="./documentation/infrastructure.png" alt="infrastructure" width="700"/>
-
-### Design Principles
-- Infrastructure as code
-- Version controlled
-- Simulate professional setup
-- Functionally separate
-- Orchestrated
-
-## Infrastructure Decisions
-
-#### Orchestrator
-
-The orchestrator is one of the most important 
-
-#### Automated deployment of docs
+**Data Lineage**
 
 <img src="./documentation/screenshots/dbt_lineage.png" alt="dbt_lineage" width="900"/>
 
-## Tools & Technologies Design Explanation
+### Star schema
+
+Unlike traditional tabular formats, XML offers a hierarchical and flexible way to represent data, allowing for nested structures. The parsed XML data below in the staging schema, represents denormalised data. From an analytical perspective this data is extremely difficult to work with and filter on.
+
+**Nested mechanics column from staging schema**
+
+<img src="./documentation/screenshots/bq_stage_nested_data.png" alt="stage_data" width="900"/>
+
+To make this data easier to work with, below code is used to create a new mechanics table with the data unnested. This is repeated multiple times for other nested data, such as 'family', 'category', 'artist', 'designer' and 'publisher' tables.
+``` sql
+{% set dt = modules.datetime.datetime.now(modules.pytz.timezone('UTC')) %}
+{% set dt_local = dt.astimezone(modules.pytz.timezone('Australia/Sydney')).strftime("%Y-%m-%d") %}
+
+SELECT DISTINCT
+  CAST(date as DATE) AS date,
+  bgg_id,
+  CAST(mechanic_id AS INT) AS mechanic_id,
+  mechanic,
+FROM `{{ env_var('GCP_PROJECT_ID') }}.bgg_stage.bgg-{{ dt_local }}`,
+  UNNEST(SPLIT(boardgame_mechanic_id,'|,|')) AS mechanic_id WITH OFFSET b,
+  UNNEST(SPLIT(boardgame_mechanic,'|,|')) AS mechanic WITH OFFSET c
+WHERE b = c
+AND mechanic NOT IN ('<NA>') AND mechanic_id NOT IN ('<NA>')
+```
+
+**Mechanics table in production schema**
+
+<img src="./documentation/screenshots/mechanic_table_brass.png" alt="mechanic_table_brass" width="400"/>
+
+This results in the below entity relationship diagram in a star schema format. `bgg` represents the central fact table holding all the metrics, surrounded by all the dimension tables. The tables are joined together through `date` and `bgg_id`, although a possible improvement could be adding a hash on the columns for easier joining.
+
+The dimension tables violate 2nd normal form. For the mechanics table, 'mechanic' is dependent on '(date, mechanic_id) and not the full primary key. I've chosen not to further normalise the data, as it would increase the number of joins and tables, making analytics more challenging.
+
+**Entity relationship diagram**
+
+<img src="./documentation/screenshots/BGG_ERD.png" alt="BGG_ERD" 
+width="800"/>
+
+Although due to different granularity and the one-to-many relationships, users need to be careful about data duplication on joins. Perhaps one way to combine this data is through creating flags, for example comparing crowdfunding games to the general population.
+
+``` sql
+SELECT 
+date,
+year_published,
+bgg_id, 
+avg_complexity_rating, 
+avg_rating,
+type,
+(CASE WHEN bgg_id IN (
+    SELECT bgg_id FROM `bgg_prod.family` 
+    WHERE family LIKE 'Crowdfunding%') 
+    AND date IN (SELECT MAX(date) FROM bgg_prod.bgg) 
+    THEN 1 ELSE 0 END) AS crowdfunding_flag,
+FROM bgg_prod.bgg
+WHERE 1=1
+AND date IN (SELECT MAX(date) FROM bgg_prod.bgg)
+```
+
+### Automating testing and documentation with dbt
+
+dbt's schema.yml file serves as an easy way to both test and document sql transformations in one place. Tests have been written to ensure the reliability of source data and transformations made. Documentation is important, as it allows end users to better and more quickly understand the data and underlying business logic. This documentation is then easily accessible through a website: [dbt docs](https://alfredzou.github.io/#!/overview)
+
+**schema.yml**
+``` yml
+models:
+  - name: dim_bgg
+    description: >
+          Information on BoardGameGeek boardgames and boardgame expansions. 
+          Composite primary key of 'date' and 'bgg_id'.
+
+          One to many relationship to 'artist', 'category', 'designer', 'family', artist', 'publisher', 'suggested_players' tables. Join on 'date' and 'bgg_id' columns.
+
+          For date information join on 'dates'. Join on 'date' columns.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - bgg_id
+
+    columns:
+      - name: date
+        data_type: date
+        description: "API call date Sydney time"
+        tests:
+          - not_null
+```
+
+To make the documentation automated, the documentation is generated every pipeline run and uploaded to a document GCS bucket. This is then served to the public using a http load balancer url, ensuring documentation freshness.
+
+**Resulting documentation**
+<img src="./documentation/screenshots/dbt_docs_1.png" alt="dbt_docs_1" width="800"/>
+
+**Data transparency through seeing transformation code**
+<img src="./documentation/screenshots/dbt_docs_2.png" alt="dbt_docs_2" width="600"/>
+
+### No partitioning and clustering
+
+Due to the small daily data size of ~150,000 rows, partitioning and clustering of the history table was not used. It's likely that partitioning and clustering a small dataset will actually reduce the query speed with excess metadata.
+
+## Infrastructure, Tools & Technologies Design Explanation
+
+### Infrastructure
+<img src="./documentation/infrastructure.png" alt="infrastructure" width="700"/>
+
+### Tools & Technologies
 - Infrastructure as code: Terraform
 - Orchestrator: Mage
 - Cloud storage: Google Cloud Storage
@@ -213,21 +281,46 @@ The orchestrator is one of the most important
 - Language: Python
 - Dashboard: Looker
 
-### Infrastructure as code
+### Design Decisions
+- [Infrastructure as code vs manual setup](#Infrastructure-as-code-vs-manual-setup)
+- [Orchestrator vs cron vs no orchestrator](#Orchestrator-vs-cron-vs-no-orchestrator)
+- [Cloud compute - Cloud Run vs Virtual Machine](#Cloud-compute---Cloud-Run-vs-Virtual-Machine)
+- [Cloud database - OLAP vs OLTP](#Cloud-database---OLAP-vs-OLTP)
+- [Transformations - dbt vs PySpark](#Transformations---dbt-vs-PySpark)
 
+### Infrastructure as code vs manual setup
 
+To set up my cloud infrastructure, I use infrastructure as code to define my infrastructure configurations. This is an automated and consistent approach compared to manual set up. This is much preferred over the manual approach, as set up will be a lot easier. 
 
-### Orchestrator
+Despite this, in retrospect there is still a considerable amount of set up and improvements can be made. Although most of it comes from setting up service account permissions. [Set up instructions.](terraform/setup.md) The current terraform set up is functionally split: the buckets, Mage and load balancer for hosting dbt docs. However, there are 3 separate 'variables.tf' files that take similar information as project name, data bucket name and document bucket name. Redundancy can be reduced by using a common variables.tf file, in a a structure like below.
 
-An orchestrator is important to manage our pipeline runs . Mage was picked, as I was familiar with it.
+```shell
+BoardGameGeek_Pipeline/
+├── terraform/
+│   ├── variables.tf      
+│   ├── 1.gcs/
+│   │   ├── main.tf  
+│   ├── 2.mage/
+│   │   ├── main.tf 
+│   ├── 3.dbt_docs/
+│   │   ├── main.tf
+```
 
+Additionally there is some manual enabling of APIs, which should be do able through terraform. There is also a part of the terraform file that creates a Compute Engine default service account, but does not have the permissions to access files in secret manager. I think the best practice is to either specify an existing service account, or though terraform provision the 'Secret Manager Secret Accessor' role to it.
 
+### Orchestrator vs cron vs no orchestrator
+
+In this project I used a pipeline orchestrator, as it allows complex workflows to be executed in the correct order based on their dependencies. Additionally they offer visibility to developers through monitoring and logging to track pipeline execution.
+- The alternative would to use cron, a time-based scheduler. However cron is suited for simple recurring tasks and lacks dependency management. It also provides minimal monitoring and logging capabilities.
+- The least desirable approach would involve manually running the pipeline one process at a time.
 
 ### Cloud compute - Cloud Run vs Virtual Machine
 
 There were two options for deploying Mage.
 - A cheaper setup would be deploying Mage on a virtual machine. The cost would roughly be $30 per month for 2 vCPU and 4 GBs of memory and another $10 per month for 100 GBs of storage. The downside of this would require more management overhead.
 - As I was trying to simulate a more professional environment, I decided to deploy Mage using Cloud Run connected to Filestore, a managed filesystem. This is an expensive option, see below. Filestore's minimum size is 1Tb and costs $10 per day, whilst running Cloud Run daily can cost $8 per day for a 2 vCPU and 4 GBs of memory. The biggest benefit of using serverless compute is reducing the management overhead and providing the ability to easily scale horizontally by creating new containers.
+
+**Cost breakdown from using Cloud Run and Filestore**
 
 <img src="./documentation/screenshots/costs.png" alt="cost" width="500"/>
 
@@ -239,7 +332,8 @@ An OLAP database was chosen over an OLTP database, as the resulting data is bein
 
 Since the dataset was small, there was no need to use the parallel processing of PySpark. Additionally there would of been a lot of additional infrastructure overhead of setting up a spark cluster using Dataproc, Google's managed Spark cluster.
 
-Additionally there are a lot of benefits for using dbt:
+I choose to use dbt because:
 - it's easy to write tests
 - leverages the compute of a database
-- generates data dictionary
+- provides more data visibility through data dictionary and lineage
+- PySpark not required

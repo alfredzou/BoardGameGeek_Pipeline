@@ -1,0 +1,136 @@
+// https://dbdiagram.io/d/BGG-661e493a03593b6b611bdaea
+
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table bgg {
+  date date
+  bgg_id int
+  type string
+  name string
+  year_published int
+  min_players int
+  max_players int
+  play_time int
+  min_play_time int
+  max_play_time int
+  num_ratings int
+  avg_rating float
+  standard_deviation_rating float
+  geek_rating float
+  num_comments int
+  num_complexity_ratings int
+  avg_complexity_rating float
+  avg_complexity str
+  num_own int
+  num_wishlist int
+  num_for_trade int
+  num_want_in_trade int
+  bgg_rank int
+ indexes {
+      (date, bgg_id) [pk] // composite primary key
+  }  
+}
+
+Table artist {
+  date date
+  bgg_id int
+  artist_id int
+  artist str
+  indexes {
+      (date, bgg_id, artist_id) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < artist.(date,bgg_id)
+
+Table mechanic {
+  date date
+  bgg_id int
+  mechanic_id int
+  mechanic str
+  indexes {
+      (date, bgg_id, mechanic_id) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < mechanic.(date,bgg_id)
+
+
+Table category {
+  date date
+  bgg_id int
+  category_id int
+  category str
+  indexes {
+      (date, bgg_id, category_id) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < category.(date,bgg_id)
+
+
+Table publisher {
+  date date
+  bgg_id int
+  publisher_id int
+  publisher str
+  indexes {
+      (date, bgg_id, publisher_id) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < publisher.(date,bgg_id)
+
+
+Table designer {
+  date date
+  bgg_id int
+  designer_id int
+  designer str
+  indexes {
+      (date, bgg_id, designer_id) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < designer.(date,bgg_id)
+
+
+Table family {
+  date date
+  bgg_id int
+  family_id int
+  family str
+  indexes {
+      (date, bgg_id, family_id) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < family.(date,bgg_id)
+
+Table suggested_players {
+  date date
+  bgg_id int
+  suggested_player_count int
+  player_count_recommendation str
+  indexes {
+      (date, bgg_id, suggested_player_count, player_count_recommendation) [pk] // composite primary key
+  }
+}
+
+Ref: bgg.(date,bgg_id) < suggested_players.(date,bgg_id)
+
+
+Table dates {
+date date [primary key]
+year int
+month int
+day int
+day_of_week int
+day_of_year int
+week_of_year int
+quarter int
+day_id int
+}
+
+Ref: bgg.date < dates.date
