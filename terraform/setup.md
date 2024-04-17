@@ -37,7 +37,7 @@ r { color: #CB0C3A }
     - Service Usage API
 
 #### The access for **gcs_bq** and **mage** should match below
-<img src="../documentation/screenshots/access.png" alt="access" width="800"/>
+<img src="../documentation/screenshots/access.png" alt="access"/>
 
 #### Terraform Steps - Setting up Infrastructure
 1. Clone the repository
