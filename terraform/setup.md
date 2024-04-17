@@ -1,7 +1,3 @@
-<style>
-r { color: #CB0C3A }
-</style>
-
 # Setup
 
 ### Requirements
@@ -51,7 +47,7 @@ git clone https://github.com/alfredzou/BoardGameGeek_Pipeline.git
 terraform init
 terraform apply
 ```
-4. For **2.mage subdirectory**, run 'terraform init' and 'terraform apply'. <r>**This will fail as the Compute Engine default service account does not have access to the Secret Manager. Run steps 5 to 7 to fix this.**</r>
+4. For **2.mage subdirectory**, run 'terraform init' and 'terraform apply'. :warning: **Warning: This will fail as the Compute Engine default service account does not have access to the Secret Manager. Run steps 5 to 7 to fix this.**
 5. Navigate to the 'IAM' page (under 'IAM & Admin')
 6. Click 'Edit principal' for Compute Engine default service account and assign it the **Secret Manager Secret Accessor**
 7. Rerun 'terraform apply'
@@ -74,7 +70,7 @@ cd /home/src/default_repo/dbt/bgg
 dbt deps
 ```
 6. Navigate to 'Pipelines' using the side pane and click 'boardgamegeek_pipeline'
-7. Click 'Run@once' and 'Run now' (the pipeline run can also be scheduled). Noting the pipeline will take around 2 hours to run due to the API calls. <r>**The pipeline is written based on Sydney Australia time, it must be completely run within the same day**</r>
+7. Click 'Run@once' and 'Run now' (the pipeline run can also be scheduled). Noting the pipeline will take around 2 hours to run due to the API calls. :warning: **Warning: The pipeline is written based on Sydney Australia time, it must be completely run within the same day**
 
 #### View dbt docs
 1. Navigate to 'Load balancing' page (under 'Network services')

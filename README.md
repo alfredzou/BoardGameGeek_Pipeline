@@ -16,7 +16,7 @@
 
 This pipeline extracts BGG's XML API2 data, parses the XML files and saves the denormalised data into a BigQuery staging schema. Data is modelled into a star schema using dbt and saved into a daily table in the production schema. This data is then incrementally loaded into respective historical tables in the production schema.
 
-<img src="./documentation/pipeline.png" alt="pipeline" style='border:1px solid #000000'/>
+<img src="./documentation/pipeline.png" alt="pipeline"/>
 
 ### Infrastructure Introduction
 
@@ -157,7 +157,7 @@ A key idea of this pipeline is the separation of extraction and transformation p
 
 Extraction Pipeline             |  Transformation Pipeline
 :------------------------------:|:-------------------------:
-<img src="./documentation/screenshots/mage_dag_1.png" alt="mage_dag_1" />  |  <img src="./documentation/screenshots/mage_dag_2.png" alt="mage_dag_2" />
+<img src="./documentation/screenshots/mage_dag_1.png" alt="mage_dag_1"/>  |  <img src="./documentation/screenshots/mage_dag_2.png" alt="mage_dag_2"/>
 
 ### Daily staging tables
 
@@ -165,7 +165,7 @@ I decided to load the staging table separately in the format of `bgg-YYYY-MM-DD`
 
 **Data Lineage**
 
-<img src="./documentation/screenshots/dbt_lineage.png" alt="dbt_lineage" />
+<img src="./documentation/screenshots/dbt_lineage.png" alt="dbt_lineage"/>
 
 ### Star schema
 
@@ -173,7 +173,7 @@ Unlike traditional tabular formats, XML offers a hierarchical and flexible way t
 
 **Nested mechanics column from staging schema**
 
-<img src="./documentation/screenshots/bq_stage_nested_data.png" alt="stage_data" style='border:1px solid #000000'/>
+<img src="./documentation/screenshots/bq_stage_nested_data.png" alt="stage_data"/>
 
 To make this data easier to work with, below code is used to create a new mechanics table with the data unnested. This is repeated multiple times for other nested data, such as 'family', 'category', 'artist', 'designer' and 'publisher' tables.
 ``` sql
@@ -194,7 +194,7 @@ AND mechanic NOT IN ('<NA>') AND mechanic_id NOT IN ('<NA>')
 
 **Mechanics table in production schema**
 
-<img src="./documentation/screenshots/mechanic_table_brass.png" alt="mechanic_table_brass" style='border:1px solid #000000'/>
+<img src="./documentation/screenshots/mechanic_table_brass.png" alt="mechanic_table_brass"/>
 
 This results in the below entity relationship diagram in a star schema format. `bgg` represents the central fact table holding all the metrics, surrounded by all the dimension tables. The tables are joined together through `date` and `bgg_id`, although a possible improvement could be adding a hash on the columns for easier joining.
 
@@ -202,7 +202,7 @@ The dimension tables violate 2nd normal form. For the mechanics table, 'mechanic
 
 **Entity relationship diagram**
 
-<img src="./documentation/screenshots/BGG_ERD.png" alt="BGG_ERD" style='border:1px solid #000000'/>
+<img src="./documentation/screenshots/BGG_ERD.png" alt="BGG_ERD"/>
 
 Although due to different granularity and the one-to-many relationships, users need to be careful about data duplication on joins. Perhaps one way to combine this data is through creating flags, for example comparing crowdfunding games to the general population.
 
@@ -256,10 +256,10 @@ models:
 To make the documentation automated, the documentation is generated every pipeline run and uploaded to a document GCS bucket. This is then served to the public using a http load balancer url, ensuring documentation freshness.
 
 **Resulting documentation**
-<img src="./documentation/screenshots/dbt_docs_1.png" alt="dbt_docs_1" style='border:1px solid #000000'/>
+<img src="./documentation/screenshots/dbt_docs_1.png" alt="dbt_docs_1"/>
 
 **Data transparency through seeing transformation code**
-<img src="./documentation/screenshots/dbt_docs_2.png" alt="dbt_docs_2" style='border:1px solid #000000'/>
+<img src="./documentation/screenshots/dbt_docs_2.png" alt="dbt_docs_2"/>
 
 ### No partitioning and clustering
 
@@ -321,7 +321,7 @@ There were two options for deploying Mage.
 
 **Cost breakdown from using Cloud Run and Filestore**
 
-<img src="./documentation/screenshots/costs.png" alt="cost" style='border:1px solid #000000'/>
+<img src="./documentation/screenshots/costs.png" alt="cost"/>
 
 ### Cloud database - OLAP vs OLTP
 
