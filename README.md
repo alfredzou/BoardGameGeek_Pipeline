@@ -1,7 +1,7 @@
 # BoardGameGeek Pipeline
 
 ### What is BoardGameGeek?
-​BoardGameGeek (BGG) is a popular online forum for board game hobbyists and a database of 121k board games and 33k expansions. BGG's database serves as one of the most comprehensive and current board game datasets, allowing for interesting analysis on board gaming trends and user preferences. 
+[​BoardGameGeek](https://boardgamegeek.com/) (BGG) is a popular online forum for board game hobbyists and a database of 121k board games and 33k expansions. BGG's database serves as one of the most comprehensive and current board game datasets, allowing for interesting analysis on board gaming trends and user preferences. 
 
 ![](./documentation/resources/bgg_api_logo.webp)
 
@@ -14,7 +14,7 @@
 
 ### Pipeline Introduction
 
-This pipeline extracts BGG's XML API2 data, parses the XML files and saves the denormalised data into a BigQuery staging schema. Data is modelled into a star schema using dbt and saved into a daily table in the production schema. This data is then incrementally loaded into respective historical tables in the production schema.
+This pipeline extracts [BGG's XML API2](https://boardgamegeek.com/wiki/page/BGG_XML_API2) data, parses the XML files and saves the denormalised data into a BigQuery staging schema. Data is modelled into a star schema using dbt and saved into a daily table in the production schema. This data is then incrementally loaded into respective historical tables in the production schema.
 
 <img src="./documentation/pipeline.png" alt="pipeline"/>
 
@@ -31,14 +31,14 @@ Google Cloud Platform is being used as the cloud provider. All infrastructure is
 <img src="./documentation/infrastructure.png" alt="infrastructure" width="700"/>
 
 ### Tools & Technologies
-- Infrastructure as code: Terraform
-- Orchestrator: Mage
-- Cloud storage: Google Cloud Storage
-- Cloud database: BigQuery
-- Cloud compute: Cloud Run
-- Transformations: dbt
-- Language: Python
-- Dashboard: Looker
+- **Infrastructure as code**: Terraform
+- **Orchestrator**: Mage
+- **Cloud storage**: Google Cloud Storage
+- **Cloud database**: BigQuery
+- **Cloud compute**: Cloud Run
+- **Transformations**: dbt
+- **Language**: Python
+- **Dashboard**: Looker
 
 # Design Decisions
 
@@ -271,14 +271,14 @@ Due to the small daily data size of ~150,000 rows, partitioning and clustering o
 <img src="./documentation/infrastructure.png" alt="infrastructure" width="700"/>
 
 ### Tools & Technologies
-- Infrastructure as code: Terraform
-- Orchestrator: Mage
-- Cloud storage: Google Cloud Storage
-- Cloud database: BigQuery
-- Cloud compute: Cloud Run
-- Transformations: dbt
-- Language: Python
-- Dashboard: Looker
+- **Infrastructure as code**: Terraform
+- **Orchestrator**: Mage
+- **Cloud storage**: Google Cloud Storage
+- **Cloud database**: BigQuery
+- **Cloud compute**: Cloud Run
+- **Transformations**: dbt
+- **Language**: Python
+- **Dashboard**: Looker
 
 ### Design Decisions
 - [Infrastructure as code vs manual setup](#Infrastructure-as-code-vs-manual-setup)
@@ -336,3 +336,14 @@ I choose to use dbt because:
 - leverages the compute of a database
 - provides more data visibility through data dictionary and lineage
 - PySpark not required
+
+## Opportunities for Further Development
+- Add testing and mocking for API call and parse XML code
+- Move parse XML code from extraction pipeline into transformation pipeline
+- Easier and less manual terraform set up
+- Common variables file for terraform set up
+- Correctly label dimension and fact tables. Currently dimension tables are labeled as fact tables and vice versa
+- Use pandas alternatives, such as polars, to reduce memory usage
+- Use generators instead of chunking to further reduce memory usage
+- Add CI/CD through github actions on pushing to github
+- Add backfill functionality to transformation pipeline
